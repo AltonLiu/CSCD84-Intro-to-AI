@@ -95,7 +95,42 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #i think it's in an infinite loop
+    # {node: [Directions], node: [Directions, ....}
+    pq = util.PriorityQueue()
+    # does this function as both actions, and visited checker?
+    finished = []
+    startNode = problem.getStartState()
+
+    pq.push(startNode, 0)
+    actions = {startNode: []} 
+
+    while not pq.isEmpty():
+        node = pq.pop()
+        finished.append(node)
+        if problem.isGoalState(node):
+            return actions[node]
+
+        nodeWeight = problem.getCostOfActions(actions[node])
+        for neighbour, action, stepCost in problem.getSuccessors(node):
+            if neighbour not in finished:
+                newPath = actions[node] + [action]
+                if neighbour in actions.keys():
+                    
+                    # if there's already a set of actions, compare their weights, we may not write down this path
+                    oldPath = actions[neighbour]
+
+                    if (problem.getCostOfActions(newPath) > problem.getCostOfActions(oldPath)):
+                        continue
+                    actions[neighbour] = newPath
+                    pq.update(neighbour, problem.getCostOfActions(newPath))
+                    continue
+                else:
+                    # if there is no set of actions, yay! write down the path
+                    actions[neighbour] = newPath
+                pq.push(neighbour, nodeWeight + stepCost)
+
+    return []
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
