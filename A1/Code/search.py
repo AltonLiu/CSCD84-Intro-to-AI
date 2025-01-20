@@ -64,8 +64,6 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
-
-
 def tinyMazeSearch(problem: SearchProblem) -> List[Directions]:
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -139,7 +137,25 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pq = util.Queue()
+    startNode = problem.getStartState()
+
+    pq.push(startNode)
+    actions = {startNode: []} # {node: [Directions], node: [Directions], ....}
+
+    while not pq.isEmpty():
+        node = pq.pop()
+        if problem.isGoalState(node):
+            return actions[node]
+
+        for neighbour, action, _ in problem.getSuccessors(node):
+            newPath = actions[node] + [action]
+            
+            if neighbour not in actions.keys():
+                actions[neighbour] = newPath
+                pq.push(neighbour)
+                
+    return []
 
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
@@ -156,7 +172,34 @@ def nullHeuristic(state, problem=None) -> float:
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic) -> List[Directions]:
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # not able to rediscover nodes
+    pq = util.PriorityQueue()
+    startNode = problem.getStartState()
+
+    pq.push(startNode, 0)
+    actions = {startNode: []} # {node: [Directions], node: [Directions], ....}
+
+    while not pq.isEmpty():
+        node = pq.pop()
+        # finished.append(node)
+        if problem.isGoalState(node):
+            return actions[node]
+
+        nodeWeight = problem.getCostOfActions(actions[node])
+        for neighbour, action, stepCost in problem.getSuccessors(node):
+            newPath = actions[node] + [action]
+            
+            if neighbour not in actions.keys():
+                actions[neighbour] = newPath
+                pq.push(neighbour, nodeWeight + stepCost + heuristic(neighbour, problem))
+            else:
+                oldPath = actions[neighbour]
+                if (problem.getCostOfActions(newPath) >= problem.getCostOfActions(oldPath)):
+                    continue
+                actions[neighbour] = newPath
+                pq.update(neighbour, problem.getCostOfActions(newPath) + heuristic(neighbour, problem))
+    return []
 
 # Abbreviations
 bfs = breadthFirstSearch
