@@ -91,41 +91,49 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """
     "*** YOUR CODE HERE ***"
     
-    visited = []
-    frontier = util.Stack()
-    
-    # Need to do this outside recursion because start node is a different format from successor nodes
-    for successor in problem.getSuccessors(problem.getStartState()):
-        frontier.push(successor)
-    
-    # Call the recursive DFS function
-    return depthFirstSearchRec(problem, visited, frontier)
-    
-
-def depthFirstSearchRec(problem: SearchProblem, visited: List[tuple], frontier: util.Stack) -> List[Directions]:
-    # Current node is in the format ((x, y), direction_away_from_predecessor, move_cost)
-    curr = frontier.pop()
-    
-    # The frontier will never contain any nodes that have been visited already, so this node is guaranteed to be unvisited
-    visited.append(curr[0])
-    
-    if problem.isGoalState(curr[0]):
-        return [curr[1], Directions.STOP]
-    
-    if problem.getSuccessors(curr[0]) == []:
+    # Need to do this outside while loop because start node is a different format from successor nodes
+    if problem.isGoalState(problem.getStartState):
         return []
     
-    for successor in problem.getSuccessors(curr[0]):
-        if successor[0] not in visited:
-            frontier.push(successor)
-            
-    dir_to_goal = []
+    frontier = util.Stack()
+    for successor in problem.getSuccessors(problem.getStartState()):
+        # Store the successor along with the path to it, that way backtracking is simplified (if we need to backtrack, the node we backtrack to will already have the corresponding path to it,
+        # therefore we won't need to modify the path to accomodate for backtracking)
+        frontier.push((successor, [successor[1]]))
     
-    while dir_to_goal == []:
-        dir_to_goal = depthFirstSearchRec(problem, visited, frontier)
+    # Track which nodes have been visited so we visit each node at most 1 time
+    visited = [problem.getStartState]
+    
+    while not frontier.isEmpty():
+        # Pop next node and its corresponding path from frontier
+        (current_node, path) = frontier.pop()
         
-    dir_to_goal.insert(0, curr[1])
-    return dir_to_goal
+        # DEBUG
+        # print("current_node:")
+        # print(current_node)
+        # print("path:")
+        # print(path)
+        
+        # No visited node will ever be added to the frontier, therefore current_node will always be unvisited
+        visited.append(current_node[0])
+        
+        # If this node is a goal node return path from start to this node
+        if problem.isGoalState(current_node[0]):
+            # DEBUG
+            # print("Path to goal:")
+            # print(path)
+            return path
+        
+        # Else add unvisited successor nodes to frontier
+        for successor in problem.getSuccessors(current_node[0]):
+            if successor[0] not in visited:
+                # DEBUG
+                # print("successor: ")
+                # print(successor)
+                frontier.push((successor, path + [successor[1]]))
+        
+    # Either goal was not found after exploring every node or the start node has no successors
+    return []
     
 
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
