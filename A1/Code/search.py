@@ -90,7 +90,43 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    visited = []
+    frontier = util.Stack()
+    
+    # Need to do this outside recursion because start node is a different format from successor nodes
+    for successor in problem.getSuccessors(problem.getStartState()):
+        frontier.push(successor)
+    
+    # Call the recursive DFS function
+    return depthFirstSearchRec(problem, visited, frontier)
+    
+
+def depthFirstSearchRec(problem: SearchProblem, visited: List[tuple], frontier: util.Stack) -> List[Directions]:
+    # Current node is in the format ((x, y), direction_away_from_predecessor, move_cost)
+    curr = frontier.pop()
+    
+    # The frontier will never contain any nodes that have been visited already, so this node is guaranteed to be unvisited
+    visited.append(curr[0])
+    
+    if problem.isGoalState(curr[0]):
+        return [curr[1], Directions.STOP]
+    
+    if problem.getSuccessors(curr[0]) == []:
+        return []
+    
+    for successor in problem.getSuccessors(curr[0]):
+        if successor[0] not in visited:
+            frontier.push(successor)
+            
+    dir_to_goal = []
+    
+    while dir_to_goal == []:
+        dir_to_goal = depthFirstSearchRec(problem, visited, frontier)
+        
+    dir_to_goal.insert(0, curr[1])
+    return dir_to_goal
+    
 
 def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     """Search the shallowest nodes in the search tree first."""
