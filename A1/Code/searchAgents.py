@@ -296,14 +296,21 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        # ((pacX, pacY), (goals))
+        # need to recalculate the closest goal, each time we reach one
+        # corners = list(self.corners)
+        # corners.sort(key = lambda p: (p[0] - self.startingPosition[0])**2 + (p[1] - self.startingPosition[1])**2)
+        return(self.startingPosition, (tuple(self.corners)))
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if len(state[1]) == 0:
+            return True
+        return False
 
     def getSuccessors(self, state: Any):
         """
@@ -320,12 +327,29 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x,y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+
+            if hitsWall:
+                continue
+
+            currentCorner = state[1][0]
+
+            # When would stepCost ever be not 1?
+            corners = []
+            
+            if (nextx == currentCorner[0] and nexty == currentCorner[1]):
+                corners = list(state[1])
+                corners = [corner for corner in corners if corner != (currentCorner[0], currentCorner[1]) ]
+            else:
+                corners = list(state[1])
+
+            corners.sort(key = lambda p: (p[0] - x)**2 + (p[1] - y)**2)
+            successors.append((((nextx, nexty), tuple(corners)), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -342,7 +366,6 @@ class CornersProblem(search.SearchProblem):
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]: return 999999
         return len(actions)
-
 
 
 def cornersHeuristic(state: Any, problem: CornersProblem):
