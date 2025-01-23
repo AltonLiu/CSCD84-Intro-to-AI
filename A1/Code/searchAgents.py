@@ -298,10 +298,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
 
         # ((pacX, pacY), (goals))
-        # need to recalculate the closest goal, each time we reach one
-        # corners = list(self.corners)
-        # corners.sort(key = lambda p: (p[0] - self.startingPosition[0])**2 + (p[1] - self.startingPosition[1])**2)
-        return(self.startingPosition, (tuple(self.corners)))
+        return(self.startingPosition, (self.corners[0], self.corners[1], self.corners[3], self.corners[2]))
 
     def isGoalState(self, state: Any):
         """
@@ -340,15 +337,11 @@ class CornersProblem(search.SearchProblem):
             currentCorner = state[1][0]
 
             # When would stepCost ever be not 1?
-            corners = []
+            corners = list(state[1])
             
             if (nextx == currentCorner[0] and nexty == currentCorner[1]):
-                corners = list(state[1])
                 corners = [corner for corner in corners if corner != (currentCorner[0], currentCorner[1]) ]
-            else:
-                corners = list(state[1])
 
-            corners.sort(key = lambda p: (p[0] - x)**2 + (p[1] - y)**2)
             successors.append((((nextx, nexty), tuple(corners)), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
@@ -381,13 +374,28 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible.
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    corners = list(problem.corners) 
+    # Sort goal corners by Manhattan Distance to current location
+    corners.sort(key = lambda p: abs(p[0] - state[0][0]) + abs(p[1] - state[0][1]))
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    
+    # Use Manhattan Distance from pac to goal as main heuristic
+    goal_corner_x, goal_corner_y = corners[0]
+    pac_pos_x, pac_pos_y = state[0]
 
+    heuristic = abs(goal_corner_x - pac_pos_x) + abs(goal_corner_y - pac_pos_y)
 
+    # Break ties by preferring nodes that are closer to the vector from start state to goal state
+    dx1 = pac_pos_x - goal_corner_x
+    dy1 = pac_pos_y - goal_corner_y
+
+    dx2 = problem.getStartState()[0][0] - goal_corner_x
+    dy2 = problem.getStartState()[0][1] - goal_corner_y
+    cross = abs(dx1*dy2 - dx2*dy1)
+    heuristic += cross*0.001
+
+    return heuristic
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

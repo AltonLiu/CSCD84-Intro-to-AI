@@ -146,8 +146,6 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
     while not pq.isEmpty():
         node = pq.pop()
         if problem.isGoalState(node):
-            print("printing actions")
-            print(actions[node])
             return actions[node]
 
         for neighbour, action, _ in problem.getSuccessors(node):
