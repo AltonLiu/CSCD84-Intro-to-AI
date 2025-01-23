@@ -90,7 +90,7 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
     "*** YOUR CODE HERE ***"
     
     # Need to do this outside while loop because start node is a different format from successor nodes
-    if problem.isGoalState(problem.getStartState):
+    if problem.isGoalState(problem.getStartState()):
         return []
     
     frontier = util.Stack()
@@ -100,7 +100,7 @@ def depthFirstSearch(problem: SearchProblem) -> List[Directions]:
         frontier.push((successor, [successor[1]]))
     
     # Track which nodes have been visited so we visit each node at most 1 time
-    visited = [problem.getStartState]
+    visited = [problem.getStartState()]
     
     while not frontier.isEmpty():
         # Pop next node and its corresponding path from frontier
@@ -162,7 +162,58 @@ def breadthFirstSearch(problem: SearchProblem) -> List[Directions]:
 def uniformCostSearch(problem: SearchProblem) -> List[Directions]:
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # Need to do this outside while loop because start node is a different format from successor nodes
+    if problem.isGoalState(problem.getStartState()):
+        return []
+    
+    # Track which nodes have been visited so we visit each node at most 1 time
+    # {coords: ([shortest_path], path_weight)}
+    visited = {problem.getStartState(): ([], 0)}
+    
+    frontier = util.PriorityQueueWithFunction(statePriorityFunction)
+    for successor in problem.getSuccessors(problem.getStartState()):
+        # Store the successor along with the path to it and the total cost of the path to it, that way backtracking is simplified
+        # (if we need to backtrack, the node we backtrack to will already have the corresponding path to it, therefore we won't need 
+        # to modify the path to accomodate for backtracking)
+        # (((x, y), direction_from_predecessor, cost_from_predecessor), [path], path_weight)
+        visited[successor[0]] = ([successor[1]], successor[2])
+        frontier.push((successor, [successor[1]], successor[2]))
+    
+    while not frontier.isEmpty():
+        # Pop next node and its corresponding path from frontier
+        current_node, path, path_weight = frontier.pop()
+        
+        # DEBUG
+        # print("current_node:")
+        # print(current_node)
+        # print("path:")
+        # print(path)
+        
+        current_coords = current_node[0]
+        
+        # If this node is a goal node return path from start to this node
+        if problem.isGoalState(current_coords):
+            return path
+        
+        # Else add unvisited successor nodes to frontier
+        for successor in problem.getSuccessors(current_coords):
+            successor_weight = successor[2]
+            total_weight = path_weight + successor_weight
+            if successor[0] not in visited or total_weight < visited[successor[0]][1]:
+                # DEBUG
+                # print("successor: ")
+                # print(successor)
+                # print("pushed:")
+                # print((successor, path + [successor[1]], total_weight))
+                visited[successor[0]] = (path + [successor[1]], total_weight)
+                frontier.push((successor, path + [successor[1]], total_weight))
+        
+    # Either goal was not found after exploring every node or the start node has no successors
+    return []
+
+def statePriorityFunction(state):
+    return state[2]
 
 def nullHeuristic(state, problem=None) -> float:
     """
