@@ -497,34 +497,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
             
     # If there is no food, heuristic = 0 is returned
     return heuristic
-    
-def closestPoint (fromPoint, candidatesList):
-    if len(candidatesList) == 0:
-        return None
-
-    closestPoint = candidatesList[0]
-    closestCost = util.manhattanDistance(fromPoint, closestPoint)
-    for candidate in candidatesList[1:]:
-        thisCost = util.manhattanDistance(fromPoint, candidate)
-        if thisCost < closestCost:
-            closestCost = thisCost
-            closestPoint = candidate
-  
-    return closestPoint
-
-def farthestPoint (fromPoint, candidatesList):
-    if len(candidatesList) == 0:
-        return None
-
-    farthestPoint = candidatesList[0]
-    farthestCost = util.manhattanDistance(fromPoint, farthestPoint)
-    for candidate in candidatesList[1:]:
-        thisCost = util.manhattanDistance(fromPoint, candidate)
-        if thisCost > farthestCost:
-            farthestCost = thisCost
-            farthestPoint = candidate
-  
-    return farthestPoint
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -555,7 +527,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -588,10 +561,11 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        x,y = state
+        x, y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        return True if (x, y) in self.food.asList() else False
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
