@@ -485,24 +485,18 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
     
-    # # TODO: verify if this is admissable
-    max_food_dist1 = (0, (1, 1))
-    max_food_dist2 = (0, (1, 1))
+    heuristic = 0
     start_coords = problem.startingGameState
 
     for food in foodGrid.asList():
-        food_dist = mazeDistance(position, food, start_coords)
+        food_distance = mazeDistance(position, food, start_coords)
         
         # Ensures non-negativity
-        if food_dist > max_food_dist1[0]:
-            max_food_dist2 = max_food_dist1
-            max_food_dist1 = (food_dist, food)
+        if food_distance > heuristic:
+            heuristic = food_distance
             
-    dist_between_furthest = mazeDistance(max_food_dist1[1], max_food_dist2[1], start_coords)
-    dist_to_closest_furthest = min(mazeDistance(position, max_food_dist1[1], start_coords), mazeDistance(position, max_food_dist2[1], start_coords))
-    
-    # If there is no food, 0 is returned
-    return dist_between_furthest + dist_to_closest_furthest
+    # If there is no food, heuristic = 0 is returned
+    return heuristic
     
 def closestPoint (fromPoint, candidatesList):
     if len(candidatesList) == 0:
