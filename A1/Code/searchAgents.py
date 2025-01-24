@@ -484,8 +484,53 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    
+    # # TODO: verify if this is admissable
+    max_food_dist1 = (0, (1, 1))
+    max_food_dist2 = (0, (1, 1))
+    start_coords = problem.startingGameState
 
+    for food in foodGrid.asList():
+        food_dist = mazeDistance(position, food, start_coords)
+        
+        # Ensures non-negativity
+        if food_dist > max_food_dist1[0]:
+            max_food_dist2 = max_food_dist1
+            max_food_dist1 = (food_dist, food)
+            
+    dist_between_furthest = mazeDistance(max_food_dist1[1], max_food_dist2[1], start_coords)
+    dist_to_closest_furthest = min(mazeDistance(position, max_food_dist1[1], start_coords), mazeDistance(position, max_food_dist2[1], start_coords))
+    
+    # If there is no food, 0 is returned
+    return dist_between_furthest + dist_to_closest_furthest
+    
+def closestPoint (fromPoint, candidatesList):
+    if len(candidatesList) == 0:
+        return None
+
+    closestPoint = candidatesList[0]
+    closestCost = util.manhattanDistance(fromPoint, closestPoint)
+    for candidate in candidatesList[1:]:
+        thisCost = util.manhattanDistance(fromPoint, candidate)
+        if thisCost < closestCost:
+            closestCost = thisCost
+            closestPoint = candidate
+  
+    return closestPoint
+
+def farthestPoint (fromPoint, candidatesList):
+    if len(candidatesList) == 0:
+        return None
+
+    farthestPoint = candidatesList[0]
+    farthestCost = util.manhattanDistance(fromPoint, farthestPoint)
+    for candidate in candidatesList[1:]:
+        thisCost = util.manhattanDistance(fromPoint, candidate)
+        if thisCost > farthestCost:
+            farthestCost = thisCost
+            farthestPoint = candidate
+  
+    return farthestPoint
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
