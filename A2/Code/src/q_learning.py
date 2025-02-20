@@ -31,8 +31,12 @@ class QLearning:
         prob = self.policy_rng.uniform()
 
         # ========================================================
-        # TODO: Implement epsilon-greedy strategy
-
+        
+        if prob <= 1 - self.eps:
+            # Select the best action when probability 1 - eps
+            q_values = [self.compute_qsa(curr_state, a) for a in range(self.num_actions)]
+            action = np.argmax(q_values)
+        
         # ========================================================
 
         return int(action)
@@ -50,8 +54,26 @@ class QLearning:
         update = None
 
         # ========================================================
-        # TODO: Implement the update rule
-    
+        
+        gamma = 1.0
+        
+        # Compute Q_w(s, a)
+        qsa = self.compute_qsa(curr_state, action)
+
+        # Compute the target value
+        if done:
+            target = reward
+        else:
+            next_q_values = [self.compute_qsa(next_state, a) for a in range(self.num_actions)]
+            target = reward + gamma * np.max(next_q_values)
+
+        # Compute the gradient of Q_w(s, a)
+        feature = self.features(curr_state, action)
+        grad_qsa = feature
+
+        # Compute the update
+        update = (target - qsa) * grad_qsa
+
         # ========================================================
 
         return update
