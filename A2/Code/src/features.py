@@ -92,8 +92,7 @@ class LinearFeature:
 
     @property
     def dim(self):
-        # TODO: Modify this
-        return 64
+        return 9
     
     def __call__(self, state, action):
         """
@@ -120,7 +119,32 @@ class LinearFeature:
         feature = np.zeros(self.dim)
 
         # ========================================================
-        # TODO: Implement linear feature
+        
+         # Find the agent's location
+        char_loc = np.where(state == b"C")
+        char_loc = (char_loc[0][0], char_loc[1][0])
+
+        # Find the goal location
+        goal_loc = np.where(state == b"G")
+        if len(goal_loc[0]) == 0:
+            goal_loc = char_loc
+        else:
+            goal_loc = (goal_loc[0][0], goal_loc[1][0])
+
+        # Compute relative positions
+        rel_goal_x = goal_loc[0] - char_loc[0]
+        rel_goal_y = goal_loc[1] - char_loc[1]
+
+        # Encode the action as a one-hot vector
+        action_one_hot = np.zeros(5)
+        action_one_hot[action] = 1
+
+        # Create the feature vector
+        feature = np.concatenate([
+            [char_loc[0], char_loc[1]],  # Agent's position
+            [rel_goal_x, rel_goal_y],    # Relative goal position
+            action_one_hot               # One-hot encoded action
+        ]).astype(np.float32)
 
         # ========================================================
 

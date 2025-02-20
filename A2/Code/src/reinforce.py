@@ -39,7 +39,15 @@ class REINFORCE:
         prob_dist = np.ones(self.num_actions) / self.num_actions
 
         # ========================================================
-        # TODO: Compute the probability distribution over actions given the current state
+        
+        # Compute the feature vector for each action
+        features = np.array([self.features(curr_state, a) for a in range(self.num_actions)])
+    
+        # Compute the logits by taking the dot product of the parameters and the feature vectors
+        logits = np.dot(features, self.parameters)
+    
+        # Compute the probability distribution over actions using softmax
+        prob_dist = softmax(logits)
 
         # ========================================================
 
@@ -68,7 +76,27 @@ class REINFORCE:
         update = None
 
         # ========================================================
-        # TODO: Implement the update rule
+
+        # Compute the return G_t
+        G_t = sum([traj[k][2] for k in range(timestep, traj_len)])
+
+        state, action, _, _, _ = traj[timestep]
+        feature = self.features(state, action)
+
+        # Compute the feature vector for each action
+        features = np.array([self.features(state, a) for a in range(self.num_actions)])
+    
+        # Compute the logits by taking the dot product of the parameters and the feature vectors
+        logits = np.dot(features, self.parameters)
+    
+        # Compute the probability distribution over actions using softmax
+        prob_dist = softmax(logits)
+
+        # Compute the gradient of log(pi_w(A_t | S_t))
+        grad_log_pi = feature - np.sum([prob_dist[a] * self.features(state, a) for a in range(self.num_actions)], axis=0)
+
+        # Compute the update
+        update = G_t * grad_log_pi
 
         # ========================================================
 
