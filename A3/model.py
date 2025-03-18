@@ -93,7 +93,7 @@ class SkipConnectionMLP(nn.Module):
 class CustomModel(nn.Module):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.hidden1 = nn.Sequential(
+        self.hidden_1 = nn.Sequential(
             nn.Conv2d(in_channels=1, 
                       out_channels=32, 
                       kernel_size=3, 
@@ -104,7 +104,7 @@ class CustomModel(nn.Module):
                          stride=2)
         )
         
-        self.hidden2 = nn.Sequential(
+        self.hidden_2 = nn.Sequential(
             nn.Conv2d(in_channels=32, 
                       out_channels=64, 
                       kernel_size=3),
@@ -120,8 +120,8 @@ class CustomModel(nn.Module):
         self.out = nn.Linear(in_features=120, out_features=10)
         
     def forward(self, x):
-        out = self.hidden1(x)
-        out = self.hidden2(out)
+        out = self.hidden_1(x)
+        out = self.hidden_2(out)
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
         out = self.drop(out)
