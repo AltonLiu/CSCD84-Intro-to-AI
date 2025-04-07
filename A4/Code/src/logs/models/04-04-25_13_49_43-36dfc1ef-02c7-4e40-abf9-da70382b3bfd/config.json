@@ -1,0 +1,1 @@
+{"num_iterations": 25000, "model": "MLP", "gradient_penalty": null, "save_path": "./logs", "load_path": null, "seed": 42}
